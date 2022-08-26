@@ -6,12 +6,15 @@ import Link from 'next/link';
 
 import styles from '../../../styles/home.module.scss';
 
+import { canSSRGuest } from '../../utils/canSSRGuest';
+
 import logoImg from '../../../public/logo.svg';
 
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
 
 import { AuthContext } from '../../contexts/AuthContext';
+import { toast } from 'react-toastify';
 
 export default function SignUp() {
   const { signUp } = useContext(AuthContext);
@@ -25,7 +28,7 @@ export default function SignUp() {
     event.preventDefault();
 
     if(name === "" || email === "" || password === "") {
-      alert("Preencha todos os campos");
+      toast.warning("Preencha todos os campos");
       return;
     }
 
@@ -82,3 +85,9 @@ export default function SignUp() {
     </>
   )
 }
+
+export const getServerSideProps = canSSRGuest(async (ctx) => {
+  return {
+    props:{}
+  }
+}) 
