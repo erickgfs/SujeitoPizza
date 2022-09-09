@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import Modal from 'react-modal';
 
 import { canSSRAuth } from '../../utils/canSSRAuth';
 import { setupAPIClient } from '../../services/api';
@@ -6,6 +7,7 @@ import styles from './styles.module.scss';
 import Head from 'next/head';
 
 import { Header } from '../../components/Header';
+import { ModalOrder } from '../../components/ModalOrder';
 import { FiRefreshCcw } from 'react-icons/fi';
 
 type OrderProps = {
@@ -16,16 +18,55 @@ type OrderProps = {
     name:string | null;
 }
 
+export type OrderItemProps = {
+    id: string;
+    amount: number;
+    order_id: string;
+    product_id: string;
+    product: {
+        id: string;
+        name: string;
+        description: string;
+        price: string;
+        banner: string;
+    }
+    order: {
+        id: string;
+        table: string | number;
+        status: string;
+        name:string | null;
+    }
+}
+
 interface HomeProps {
     orders: OrderProps[];
 }
 
+
+
 export default function Dashboard({ orders }: HomeProps) {
     const [orderList, setOrderList] = useState(orders || []);
+    const [modalItem, setModalItem] = useState<OrderItemProps[]>();
+    const [modalVisible, setModalVisible] = useState(false);
 
-    function handleOpenModalView(id: string) {
-        alert('id Clicado: ' + id)
+    function handleCloseModal() {
+        setModalVisible(false);
+    }
+
+    async function handleOpenModalView(id: string) {
+        const apiClient = setupAPIClient();
+
+        const response = await apiClient.get("/order/detail", {
+            params:{
+                order_id:id,
+            }
+        });
+
+        setModalItem(response.data);
+        setModalVisible(true);
     };
+
+    Modal.setAppElement('#__next');
 
     return (
         <>
@@ -59,6 +100,13 @@ export default function Dashboard({ orders }: HomeProps) {
                         })};
                     </article>
                 </main>
+                { modalVisible && (
+                    <ModalOrder 
+                        isOpen={modalVisible}
+                        onRequestClose={handleCloseModal}
+                        order={modalItem}
+                    />
+                )}
             </div>
         </>
     )
