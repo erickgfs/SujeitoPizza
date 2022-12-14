@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, TextInput, Modal, FlatList, StyleSheet } from 'react-native';
 
 import { useRoute, RouteProp, useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { StackParamsList } from '../../routes/app.routes';
 
 import { Feather } from '@expo/vector-icons';
 
@@ -38,7 +40,7 @@ type OrderRouteProps = RouteProp<RouteDetailParams, 'Order'>
 
 export default function Order() {
     const route = useRoute<OrderRouteProps>();
-    const navigation = useNavigation();
+    const navigation = useNavigation<NativeStackNavigationProp<StackParamsList>>();
 
     const [category, setCategory] = useState<CategoryProps[] | []>([]);
     const [categorySelected, setCategorySelected] = useState<CategoryProps | undefined>();
@@ -92,6 +94,12 @@ export default function Order() {
         } catch(err) {
             console.log(err);
         }
+    }
+    function handleFinishOrder() {
+        navigation.navigate('FinishOrder', {
+            number: route.params?.number,
+            order_id: route.params.order_id
+        });
     }
 
     function handleChangeCategory(item: CategoryProps) {
@@ -176,7 +184,7 @@ export default function Order() {
                 <TouchableOpacity style={styles.buttonAdd} onPress={ handleAdd }>
                     <Text style={styles.buttonText}>+</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={[styles.button, { opacity:items.length === 0 ? 0.3 : 1}]} disabled={items.length === 0}>
+                <TouchableOpacity style={[styles.button, { opacity:items.length === 0 ? 0.3 : 1}]} disabled={items.length === 0} onPress={ handleFinishOrder }>
                     <Text style={styles.buttonText}>Avançar</Text>
                 </TouchableOpacity>
             </View>
